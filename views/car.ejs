@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Document</title>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <style type="text/css">
+        .grid {
+            box-shadow: 1px 1px 1px black;
+            padding: 10px;
+            height: 200px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            overflow: hidden;
+        }
+        .grid img {
+            float: left;
+            width: 70px;
+            height: 70px;
+        }
+        .grid h3 {
+            float: left;
+            font-size: 14px;
+            width: 100px;
+            height: 30px;
+            overflow: hidden;
+            font-weight: bold;
+        }
+        .grid p {
+            clear: both;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-default">
+        <div class="container-fluid">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1"
+                    aria-expanded="false">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="#">北京汽车租赁管理系统</a>
+            </div>
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav">
+                    <li><a href="/find"><span>客人查询</span></a></li>
+                    <li><a href="/zulin">租赁登记</a></li>
+                    <li><a href="/gui">归还登记</a></li>
+                    <li><a href="/fenxi">统计分析</a></li>
+                    <li><a href="/showtype">类别档案</a></li>
+                    <li class="active"><a href="/showcar">汽车档案</a></li>
+                    <li><a href="/tui" id="tui">退出系统</a></li>
+                </ul>
+            </div><!-- /.navbar-collapse -->
+        </div><!-- /.container-fluid -->
+    </nav>
+    <div class="container" style="width: 100%;">
+        <div class="nav">
+            <button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#myModal" id="jia">增加</button>
+            <button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#myModala" id="update">修改</button>
+            <button type="button" class="btn btn-danger btn-lg" data-toggle="modal" data-target="#myModalc" id="del">删除</button>
+            <button type="button" class="btn btn-primary btn-lg" data-toggle="modal">返回</button>
+        </div>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>行号</th>
+                    <th>汽车名称</th>
+                    <th>所属类型</th>
+                    <th>租赁价格</th>
+                    <th>计量单位</th>
+                    <th>租车状态</th>
+                </tr>
+            </thead>
+            <tbody id="tbody"></tbody>
+        </table>
+        <div id="pagenavbox"></div>
+    </div>
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 class="modal-title" id="myModalLabel">增加</h4>
+                </div>
+                <div class="modal-body">
+                    <form class="form-horizontal">
+                        行号：<input type="number" class="form-control" name="id">
+                        <br>
+                        汽车名称： <input type="text" class="form-control" placeholder="请输入汽车名称" name="name">
+                        <br>
+                        所属类型：<select id="select" name="type">
+
+                        </select>
+                        <br>
+                        租赁价格：<input name="price" type="text" class="form-control" id="inputEmail3" style="width: 300px;">
+                        <br>
+                        出租状态：<input type="text" class="form-control" name="zhuangtai">
+                        <br>
+                        计量单位：天
+                        <br>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="ok">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="myModala" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 class="modal-title" id="myModalLabel">修改</h4>
+                </div>
+                <div class="modal-body">
+                    <form class="form-horizontal">
+                        行号： <input type="number" class="form-control" name="id1">
+                        <br>
+                        汽车名称：<input type="text" class="form-control" name="name1">
+                        <br>
+                        所属类型：<input type="text" class="form-control" name="type1">
+                        <br>
+                        租赁价格：<input type="text" class="form-control" name="price1">
+                        <br>
+                        出租状态：<input type="text" class="form-control" name="zhuangtai">
+                        <br>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="bianji">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="myModalc" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog  bs-example-modal-sm" role="document">
+            <div class="modal-content">
+                <div style="height: 80px;text-align: center;line-height: 80px;font-size: 26px;">
+                    确定要删除此用户？
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="dels">删除</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript" src="js/PageNav.js"></script>
+    <script src="js/jquery-1.12.3.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="js/underscore.js"></script>
+    <script type="text/javascript">
+        $.get("/car?page=1", function (data) {
+            new PageNav({
+                boxid: "pagenavbox",
+                page: 1,
+                pageAmount: data.pageAmount,
+                change: function (pagenumber) {
+                    gotopage(pagenumber);
+                }
+            })
+            gotopage(1);
+        })
+        function gotopage(pagenumber) {
+            $("#tbody").empty();
+            $.get("/car?page=" + pagenumber, function (data) {
+                $.each(data.results, function (i, n) {
+                    $tr = $("<tr></tr>");
+                    $("<td><input type='radio' data-id='" + n.id + "' class='checkbox' name='radio'></td>").appendTo($tr);
+                    $("<td></td>").html(n.id).appendTo($tr);
+                    $("<td></td>").html(n.name).appendTo($tr);
+                    $("<td></td>").html(n.type).appendTo($tr);
+                    $("<td></td>").html(n.price).appendTo($tr);
+                    $("<td></td>").html("天").appendTo($tr);
+                    $("<td></td>").html(n.zhuangtai).appendTo($tr);
+                    $tr.appendTo($("#tbody"));
+                })
+
+            })
+        }
+        // 租赁左边
+        $.get("/zulinall", function (data) {
+            var str = "";
+            var data = data.results;
+            for (var i = 0; i < data.length; i++) {
+                str = "<option class='option'>" + data[i].type + "</option>";
+                $("#select").append(str);
+            }
+        })
+        // 增加
+        $("#ok").click(function () {
+            $.post("/car", {
+                id: parseInt($("input[name=id]").val()),
+                name: $("input[name=name]").val(),
+                type: $(".option:checked").val(),
+                price: $("input[name=price]").val(),
+                zhuangtai: $("input[name=zhuangtai]").val()
+            }, function (data) {
+                if (data.result == 1) {
+                    alert("提交成功！");
+                    window.location = "/showcar"
+                } else if (data.result == -1) {
+                    alert("提交失败");
+                } else if (data.result == -2) {
+                    alert("失败");
+                }
+            })
+
+        })
+        // 编辑
+        $("#tbody").delegate(".checkbox", "click", function () {
+            var $this = $(this).parent().parent().children();
+            // 删除
+            var This = $(this).parent().parent();
+            var id = $(this).data("id");
+            console.log(id);
+            $("#dels").click(function () {
+                $.ajax({
+                    url: "/car/" + id,
+                    type: "delete",
+                    success: function (data) {
+                        if (data.result == 1) {
+                            alert("删除成功");
+                            window.location = "/showcar"
+                            This.remove();
+                        } else {
+                            alert("服务器错误！");
+                        }
+                    }
+                })
+                $.post("/car/" + id, function (data) {
+                    if (data.results == 1) {
+                        alert("成功");
+                        This.remove();
+                    } else if (data.results == -1) {
+                        alert("失败")
+                    }
+                })
+            })
+
+            $("#update").click(function () {
+                console.log(id)
+                $.get("/car/" + id, function (data) {
+                    console.log(id)
+                    if (data.result == -1) {
+                        alert("查无此人")
+                    } else {
+                        $("input[name=id1]").val(data.result.id);
+                        $("input[name=name1]").val(data.result.name);
+                        $("input[name=type1]").val(data.result.type);
+                        $("input[name=price1]").val(data.result.price);
+                        $("input[name=zhuangtai1]").val(data.result.zhuangtai);
+                    }
+                })
+            })
+        })
+        // 编辑
+        $("#bianji").click(function () {
+            var id = parseInt($("input[name=id1]").val());
+            $.post("/car/" + id, {
+                id: parseInt($("input[name=id1]").val()),
+                name: $("input[name=name1]").val(),
+                type: $("input[name=type1]").val(),
+                price: $("input[name=price1]").val(),
+                zhuangtai: $("input[name=zhuangtai1]").val()
+            }, function (data) {
+                if (data.result == 1) {
+                    alert("修改成功！");
+                    window.location = "/showcar";
+                } else {
+                    alert("服务器错误！");
+                }
+            })
+        })
+        // 退出
+        $("#tui").click(function () {
+            $.get("/tui", function (data) {
+                alert("退出成功");
+                window.location = "/";
+            })
+        })
+    </script>
+</body>
+
+</html>

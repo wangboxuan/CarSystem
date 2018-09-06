@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Document</title>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <style type="text/css">
+        .grid {
+            box-shadow: 1px 1px 1px black;
+            padding: 10px;
+            height: 200px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            overflow: hidden;
+        }
+        .grid img {
+            float: left;
+            width: 70px;
+            height: 70px;
+        }
+        .grid h3 {
+            float: left;
+            font-size: 14px;
+            width: 100px;
+            height: 30px;
+            overflow: hidden;
+            font-weight: bold;
+        }
+        .grid p {
+            clear: both;
+            padding: 10px;
+        }
+        .left {
+            width: 20%;
+            float: left;
+            text-align: center;
+        }
+        .right {
+            width: 70%;
+            float: left;
+        }
+        li {
+            list-style: none;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-default">
+        <div class="container-fluid">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1"
+                    aria-expanded="false">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="#">北京汽车租赁管理系统</a>
+            </div>
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav">
+                    <li><a href="/find"><span>客人查询</span></a></li>
+                    <li><a href="/zulin">租赁登记</a></li>
+                    <li><a href="/gui">归还登记</a></li>
+                    <li class="active"><a href="/fenxi">统计分析</a></li>
+                    <li><a href="/showtype">类别档案</a></li>
+                    <li><a href="/showcar">汽车档案</a></li>
+                    <li><a href="/tui" id="tui">退出系统</a></li>
+                </ul>
+            </div><!-- /.navbar-collapse -->
+        </div><!-- /.container-fluid -->
+    </nav>
+    <div class="box">
+        <div class="left">
+            <ul class="nav nav-tabs" role="tablist">
+                <li role="presentation" class="active" id="zuchu"><a href="#home" aria-controls="home" role="tab" data-toggle="tab">租出统计</a></li>
+                <li role="presentation" id="huan"><a href="#profile" aria-controls="profile" role="tab" data-toggle="tab">归还统计</a></li>
+            </ul>
+        </div>
+        <!--<div class="right">-->
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <td>行号</td>
+                        <td>租赁名称</td>
+                        <td>汽车类型</td>
+                        <td>租赁人</td>
+                        <td>租赁时长</td>
+                        <td>每天租金</td>
+                        <td>合计金额</td>
+                    </tr>
+                </thead>
+                <tbody id="zulincar"></tbody>
+            </table>
+        </div>
+    <!--</div>-->
+    <div id="echarts" style="width:600px;height:500px;margin-top:200px"></div>
+    <script type="text/javascript" src="js/PageNav.js"></script>
+    <script src="js/jquery-1.12.3.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="js/underscore.js"></script>
+    <script src="js/echarts.min.js"></script>
+    <script type="text/javascript">
+        $("#zuchu").click(function () {
+            $("#zulincar").empty();
+            $.get("/quyizu", function (data) {
+                $.each(data.results, function (i, n) {
+                    $tr = $("<tr></tr>");
+                    $("<td></td>").html(n.id).appendTo($tr);
+                    $("<td></td>").html(n.name).appendTo($tr);
+                    $("<td></td>").html(n.type).appendTo($tr);
+                    $("<td></td>").html(n.yonghuming).appendTo($tr);
+                    $("<td></td>").html(n.time + "天").appendTo($tr);
+                    $("<td></td>").html(n.price).appendTo($tr);
+                    $("<td></td>").html(n.he).appendTo($tr);
+                    $tr.appendTo($("#zulincar"));
+                })
+            })
+        })
+        $("#huan").click(function () {
+            $("#zulincar").empty();
+            $.get("/guihuan", function (data) {
+                $.each(data.results, function (i, n) {
+                    $tr = $("<tr></tr>");
+                    $("<td></td>").html(n.id).appendTo($tr);
+                    $("<td></td>").html(n.name).appendTo($tr);
+                    $("<td></td>").html(n.type).appendTo($tr);
+                    $("<td></td>").html(n.yonghuming).appendTo($tr);
+                    $("<td></td>").html(n.time).appendTo($tr);
+                    $("<td></td>").html(n.price).appendTo($tr);
+                    $("<td></td>").html(n.he).appendTo($tr);
+                    $tr.appendTo($("#zulincar"));
+                })
+            })
+        })
+        $.get("/tu", function (data) {
+            var cartype = data.cartype;
+            var carcount = data.carcount;
+            var datas = [];
+            for (var i = 0; i < cartype.length; i++) {
+                datas.push({ value: carcount, type: cartype });
+            }
+            var timu1canvas = echarts.init(document.getElementById("echarts"));
+            timu1canvas.setOption({
+                title: {
+                    text: '归还统计',
+                    x: 'center'
+                },
+                color: ['#ddd'],
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {            // 坐标轴指示器，坐标轴触发有效
+                        type: 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+                    }
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '3%',
+                    containLabel: true
+                },
+                xAxis: [
+                    {
+                        type: 'category',
+                        data: cartype,
+                        axisTick: {
+                            alignWithLabel: true
+                        }
+                    }
+                ],
+                yAxis: [
+                    {
+                        type: 'value'
+                    }
+                ],
+                series: [
+                    {
+                        name: '直接访问',
+                        type: 'bar',
+                        barWidth: '60%',
+                        data: carcount
+                    }
+                ]
+            });
+        })
+        $("#tui").click(function () {
+            $.get("/tui", function (data) {
+                alert("退出成功");
+                window.location = "/";
+            })
+        })
+    </script>
+</body>
+
+</html>

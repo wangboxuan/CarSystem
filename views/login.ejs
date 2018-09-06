@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <title>Document</title>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: url("images/1.jpg");
+            background-size: cover;
+        }
+        small{
+            color:#B3B2B3;
+        }
+        .jumbotron{
+            background: rgba(255,255,255,.5);
+        }
+        form{
+            background: rgba(255,255,255,.5);
+            padding:20px 20px 20px 0;
+        }
+    </style>
+</head>
+<body>
+<div class="container" style="padding-top:40px;">
+    <div class="jumbotron">
+        <h1>北京汽车租赁管理系统</h1>
+    </div>
+        <div class="form col-lg-6">
+            <form class="form-horizontal" role="form">
+                <div class="form-group">
+                    <label for="yonghuming" class="col-sm-2 control-label">用户名</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" name="yonghuming" id="yonghuming" placeholder="">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="mima" class="col-sm-2 control-label">密码</label>
+                    <div class="col-sm-10">
+                        <input type="password" class="form-control" name="mima" id="mima" placeholder="">
+                        <small>如果忘记了密码，请联系相关部门工作人员。</small>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-sm-offset-2 col-sm-10">
+                        <button type="button" class="btn btn-success" id="denglu">登录</button>
+                    </div>
+                </div>
+                <br><br>
+            </form>
+        </div>
+    </div>
+    <script src="js/jquery-1.12.3.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script type="text/javascript">
+        $("#denglu").click(function () {
+            var str = $("form").serialize();
+            $.post("/checklogin", str, function (data) {
+                if (data.result == 1) {
+                    window.location = "/find";
+                }else if (data.result == -2) {
+                    alert("密码错误！");
+                }
+            })
+        });
+    </script>
+</body>
+</html>

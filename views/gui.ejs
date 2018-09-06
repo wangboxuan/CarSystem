@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <title>Document</title>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <style type="text/css">
+        .grid {
+            box-shadow: 1px 1px 1px black;
+            padding: 10px;
+            height: 200px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            overflow: hidden;
+        }
+
+        .grid img {
+            float: left;
+            width: 70px;
+            height: 70px;
+        }
+
+        .grid h3 {
+            float: left;
+            font-size: 14px;
+            width: 100px;
+            height: 30px;
+            overflow: hidden;
+            font-weight: bold;
+        }
+
+        .grid p {
+            clear: both;
+            padding: 10px;
+        }
+
+        .left {
+            width: 20%;
+            float: left;
+            text-align: center;
+        }
+
+        .right {
+            width: 70%;
+            float: left;
+        }
+
+        li {
+            list-style: none;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-default">
+        <div class="container-fluid">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1"
+                    aria-expanded="false">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="#">北京汽车租赁管理系统</a>
+            </div>
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav">
+                    <li><a href="/find"><span>客人查询</span></a></li>
+                    <li><a href="/zulin">租赁登记</a></li>
+                    <li class="active"><a href="/gui">归还登记</a></li>
+                    <li><a href="/fenxi">统计分析</a></li>
+                    <li><a href="/showtype">类别档案</a></li>
+                    <li><a href="/showcar">汽车档案</a></li>
+                    <li><a href="/tui" id="tui">退出系统</a></li>
+                </ul>
+            </div><!-- /.navbar-collapse -->
+        </div><!-- /.container-fluid -->
+    </nav>
+    <div class="container" style="width: 100%;">
+        <table class="table table-striped">
+            <tr>
+                <th></th>
+                <th>行号</th>
+                <th>租赁人</th>
+                <th>租赁名称</th>
+                <th>租赁时长</th>
+                <th>车类型</th>
+                <th>每天价格</th>
+                <th>已付押金</th>
+                <th>应付金额</th>
+            </tr>
+            <tbody id="tbody"></tbody>
+        </table>
+        <div id="pagenavbox"></div>
+        <br><br>
+        <div class="col-md-4" id="rentAll">
+            <div class="form-group">
+                <label>已付押金:</label><br>
+                <input type="text" name="yifu">
+            </div>
+            <div class="form-group">
+                <label>应付金额:</label><br>
+                <input type="text" name="yingfu">
+            </div>
+            <div class="form-group">
+                <label>找零金额:</label><br>
+                <input type="text" name="zhao">
+            </div>
+            <button type="btn" class="btn btn-success" id="huan">确定归还</button>
+        </div>
+    </div>
+    <script type="text/javascript" src="js/PageNav.js"></script>
+    <script src="js/jquery-1.12.3.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="js/underscore.js"></script>
+    <script type="text/javascript">
+        $.get("/quyizu?page=1", function (data) {
+            new PageNav({
+                boxid: "pagenavbox",
+                page: 1,
+                pageAmount: data.pageAmount,
+                change: function (pagenumber) {
+                    gotopage(pagenumber);
+                }
+            })
+            gotopage(1);
+        })
+        function gotopage(pagenumber) {
+            $("#tbody").empty();
+            $.get("/quyizu?page=" + pagenumber, function (data) {
+                $.each(data.results, function (i, n) {
+                    $tr = $("<tr></tr>");
+                    $("<td><input type='radio' data-id='" + n.id + "' class='checkbox' name='radio'></td>").appendTo($tr);
+                    $("<td></td>").html(n.id).appendTo($tr);
+                    $("<td></td>").html(n.yonghuming).appendTo($tr);
+                    $("<td></td>").html(n.name).appendTo($tr);
+                    $("<td></td>").html(n.time + "天").appendTo($tr);
+                    $("<td></td>").html(n.type).appendTo($tr);
+                    $("<td></td>").html(n.price).appendTo($tr);
+                    $("<td></td>").html(n.yajin).appendTo($tr);
+                    $("<td></td>").html(n.he).appendTo($tr);
+                    $tr.appendTo($("#tbody"));
+                })
+            })
+        }
+        $("#huan").click(function () {
+            var This = $("input[name=radio]:checked").parents().children();
+            var sid = $(This).eq(2).html();
+            $.post("/yizu/" + sid, { "zhuangtai": "可租" }, function (data) {
+                if (data.result == 1) {
+                    alert("归还成功");
+                } else if (data.result == -1) {
+                    alert("失败");
+                }
+            })
+            var This1 = $("input[name=radio]:checked").parents();
+            $.ajax({
+                url: "/gui/" + sid,
+                type: "delete",
+                success: function (data) {
+                    if (data.result == 1) {
+                        This1.remove();
+                    } else {
+                        alert("服务器错误！");
+                    }
+                }
+            })
+            $.post("/gh", {
+                id: sid,
+                yonghuming: $(This).eq(3).html(),
+                name: $(This).eq(4).html(),
+                time: $(This).eq(5).html(),
+                type:$(This).eq(6).html(),
+                price: $(This).eq(7).html(),
+                yajin:$(This).eq(8).html(),
+                he:$(This).eq(9).html(),
+                
+            }, function (data) {
+                if (data.result == 1) {
+                    alert("成功");
+                    window.location="/gui"
+                    $("input[type=text]").val("");
+                } else if (data.result == -1) {
+                    alert("服务器错误")
+                }
+            })
+        })
+        $("#tbody").delegate(".checkbox", "click", function () {
+            var This=$(this).parents().children()
+            $("input[name=yifu]").val($(This).eq(8).html());
+            $("input[name=yingfu]").val($(This).eq(7).html());
+            $("input[name=zhao]").val($(This).eq(8).html()-$(This).eq(7).html())
+        })
+        // 退出
+        $("#tui").click(function () {
+            $.get("/tui", function (data) {
+                alert("退出成功");
+                window.location = "/";
+            })
+        })
+    </script>
+</body>
+
+</html>

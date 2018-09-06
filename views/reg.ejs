@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>注册页面 - 汽车租赁管理系统</title>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <style type="text/css">
+        em.r {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            background-color: yellowgreen;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 20px;
+        }
+
+        em.w {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            background-color: red;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 20px;
+        }
+
+        body {
+            width: 100%;
+            background: url(bg.jpg) no-repeat;
+            background-size:cover;
+        }
+
+        h3 {
+            text-align: center;
+        }
+
+        .centerbox {
+            width: 450px;
+            height: 350px;
+            background: #000;
+            opacity: .3;
+            margin: 50px auto;
+            color: #fff;
+        }
+        .centerbox1 {
+            margin: 0px 380px;
+            color: #fff;
+            margin-top: -380px;
+        }
+        a{
+            text-decoration: none;
+        }
+    </style>
+</head>
+
+<body>
+    <h3>汽车租赁管理系统</h3>
+    <div class="centerbox"></div>
+    <div class="container">
+        <div class="col-lg-4 centerbox1">
+            <h4>欢迎注册</h4>
+            <form>
+                <div class="form-group">
+                    <label for="yonghuming">用户名</label>
+                    <input type="text" class="form-control" name="yonghuming" id="yonghuming" placeholder="用户名可以是中文">
+                    <em class=""></em>
+                    <span class="explain"></span>
+                </div>
+                <div class="form-group">
+                    <label for="mima">密码</label>
+                    <input type="password" class="form-control" name="mima" id="mima" placeholder="密码最少6位">
+                    <em class=""></em>
+                    <span class="explain"></span>
+                </div>
+                <div class="form-group">
+                    <label for="querenmima">确认密码</label>
+                    <input type="password" class="form-control" id="querenmima" placeholder="请重复输入">
+                    <em class=""></em>
+                    <span class="explain"></span>
+                </div>
+                <button type="button" class="btn btn-success" id="zhuce">注册</button>
+                <button type="button" class="btn" id="denglu">已注册？请登录</button>
+                <br><br>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/jquery-1.12.3.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script type="text/javascript">
+        var yonghumingcheck = false;
+        var mimacheck = false;
+        var querencheck = false;
+        // 获取焦点时，把图标跟内容清空
+        $("input[type=text],input[type=password]").focus(function () {
+            $(this).siblings("em").attr("class", "").html("");
+            $(this).siblings(".explain").html("");
+        })
+        // 用户名
+        $("#yonghuming").blur(function () {
+            var yonghuming = $(this).val();
+            if (/[\!\@\$\<\>\*\^]/.test(yonghuming)) {
+                $(this).siblings("em").attr("class", "w").html("x");
+                $(this).siblings(".explain").html("用户名有非法字符");
+                yonghuming = false;
+                return;
+            }
+            var $this = $(this);
+            $.get("/checkuserexist?yonghuming=" + yonghuming, function (data) {
+                if (data.result == -1) {
+                    $this.siblings("em").attr("class", "w").html("x");
+                    $this.siblings(".explain").html("用户名被占用");
+                    yonghumingcheck = false;
+                    return;
+                } else {
+                    $this.siblings("em").attr("class", "r").html("√");
+                    $this.siblings(".explain").html("通过");
+                    yonghumingcheck = true;
+                }
+            })
+        })
+        // 密码
+        $("#mima").blur(function () {
+            var mima = $(this).val();
+            if (mima.length < 6) {
+                $this.siblings("em").attr("class", "w").html("x");
+                $this.siblings(".explain").html("密码长度不够");
+                mimacheck = false;
+                return;
+            } else {
+                $(this).siblings("em").attr("class", "r").html("√");
+                $(this).siblings(".explain").html("合法");
+                mimacheck = true;
+            }
+        })
+        // 确认密码
+        $("#querenmima").blur(function () {
+            var querenmima = $(this).val();
+            var mima = $("#mima").val();
+            if (querenmima != mima) {
+                $this.siblings("em").attr("class", "w").html("x");
+                $this.siblings(".explain").html("密码不一致");
+                querencheck = false;
+                return;
+            } else {
+                $(this).siblings("em").attr("class", "r").html("√");
+                $(this).siblings(".explain").html("一致");
+                querencheck = true;
+            }
+        })
+        // 点击注册按钮
+        $("#zhuce").click(function () {
+            var str = $("form").serialize();
+            if (querencheck && mimacheck && yonghumingcheck) {
+                $.post("/doreg", str, function (data) {
+                    if (data.result == 1) {
+                        alert("成功");
+                        window.location = "/index";
+                    } else if (data.result == -1) {
+                        alert("用户名被占用");
+                    } else if (data.result == -2) {
+                        alert("服务器错误")
+                    }
+                })
+            }
+        })
+         // 点击注册按钮
+         $("#denglu").click(function () {
+            window.location="/";
+        })
+    </script>
+</body>
+
+</html>

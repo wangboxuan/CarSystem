@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <title>Document</title>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <style type="text/css">
+        .grid {
+            box-shadow: 1px 1px 1px black;
+            padding: 10px;
+            height: 200px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            overflow: hidden;
+        }
+        .grid img {
+            float: left;
+            width: 70px;
+            height: 70px;
+        }
+        .grid h3 {
+            float: left;
+            font-size: 14px;
+            width: 100px;
+            height: 30px;
+            overflow: hidden;
+            font-weight: bold;
+        }
+        .grid p {
+            clear: both;
+            padding: 10px;
+        }
+        .left {
+            width: 20%;
+            float: left;
+            text-align: center;
+        }
+        .right {
+            width: 70%;
+            float: left;
+        }
+        li {
+            list-style: none;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-default">
+        <div class="container-fluid">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1"
+                    aria-expanded="false">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="#">北京汽车租赁管理系统</a>
+            </div>
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav">
+                    <li><a href="/find"><span>客人查询</span></a></li>
+                    <li class="active"><a href="/zulin">租赁登记</a></li>
+                    <li><a href="/gui">归还登记</a></li>
+                    <li><a href="/fenxi">统计分析</a></li>
+                    <li><a href="/showtype">类别档案</a></li>
+                    <li><a href="/showcar">汽车档案</a></li>
+                    <li><a href="/tui" id="tui">退出系统</a></li>
+                </ul>
+            </div><!-- /.navbar-collapse -->
+        </div><!-- /.container-fluid -->
+    </nav>
+
+    <div class="container border" style="width: 100%;">
+        <div class="left" style="width: 15%;">
+            <ul class="leftul"><h3>类别</h3></ul>
+        </div>
+        <div class="right" style="width: 50%;">
+            <table class="table  table-striped">
+                <thead>
+                    <tr>
+                        <td></td>
+                        <td>行号</td>
+                        <td>汽车名称</td>
+                        <td>每日租金</td>
+                        <td>可租状态</td>
+                        <td>汽车类型</td>
+                    </tr>
+                </thead>
+                <tbody id="tbody">
+
+                </tbody>
+            </table>
+        </div>
+        <div class="col-md-4" id="rentAll" style="width: 30%;float:right;">
+            <div class="form-group">
+                <label>租赁时长:</label><br>
+                <input type="number" name="shi">天
+            </div>
+            <div class="form-group">
+                <label>每天租金</label>
+                <input type="text" name="mei">
+            </div>
+            <div class="form-group">
+                <label>合计金额</label>
+                <input type="text" name="price">
+            </div>
+            <div class="form-group" id="username">
+                <label>客户选择</label>
+                <select name="" id="select">
+
+                </select>
+            </div>
+            <div class="form-group">
+                <label>客户支付</label>
+                <input type="text" name="yajin">
+            </div>
+            <p style="color: red;">如果不存在此客户，请点击"+"&nbsp;&nbsp;&nbsp;&nbsp;<button id="jia" style="color: #000">+</button></p>
+            <button type="btn" class="btn btn-success" id="que">确认租出</button>
+            <button type="btn" class="btn btn-default">退出</button>
+        </div>
+    </div>
+    <script type="text/javascript" src="js/PageNav.js"></script>
+    <script src="js/jquery-1.12.3.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="js/underscore.js"></script>
+    <script type="text/javascript">
+        // 客人选择
+        $.get("/student", function (data) {
+            var keren = data.results;
+            var name = ""; console.log(keren);
+            for (var i = 0; i < keren.length; i++) {
+                name = "<option>" + keren[i].yonghuming + "</option>";
+                $("#select").append(name);
+            }
+        })
+        // 租赁左边
+        $.get("/zulinall", function (data) {
+            var str = "";
+            var data = data.results;
+            for (var i = 0; i < data.length; i++) {
+                str = "<li>" + data[i].type + "</li>";
+                $(".leftul").append(str);
+            }
+        })
+        // 右边
+        $.get("/zulinallr", function (data) {
+            var Typedata = data.results;
+            $.each(Typedata, function (i, n) {
+                $tr = $("<tr></tr>");
+                $("<td><input type='radio' data-id='" + n.id + "' class='checkbox' name='radio'></td>").appendTo($tr);
+                $("<td></td>").html(n.id).appendTo($tr);
+                $("<td></td>").html(n.name).appendTo($tr);
+                $("<td></td>").html(n.price).appendTo($tr);
+                $("<td></td>").html(n.zhuangtai).appendTo($tr);
+                $("<td></td>").html(n.type).appendTo($tr);
+                $tr.appendTo($("#tbody"));
+            })
+        })
+        // 左边点击，右边变化
+        $(".leftul").delegate("li", "click", function () {
+            var Typename = $(this).html();
+            $("#tbody").empty();
+            $.get("/zulinallr", function (data) {
+                var Typedata = data.results;
+                $.each(Typedata, function (i, n) {
+                    if (n.type == Typename) {
+                        $tr = $("<tr></tr>");
+                        $("<td><input type='radio' data-id='" + n.id + "' class='checkbox' name='radio'></td>").appendTo($tr);
+                        $("<td></td>").html(n.id).appendTo($tr);
+                        $("<td></td>").html(n.name).appendTo($tr);
+                        $("<td></td>").html(n.price).appendTo($tr);
+                        $("<td></td>").html(n.zhuangtai).appendTo($tr);
+                        $("<td></td>").html(n.type).appendTo($tr);
+                        $tr.appendTo($("#tbody"));
+
+                    }
+                })
+            })
+        })
+        $("input[name=yajin]").change(function () {
+            if (parseInt($(this).val()) <= parseInt($("input[name=price]").val())) {
+                $("#money-a").css({"display":"block","color":"blue"});
+                $("#money-a").html("支付金额太少,不能确认租出哦!!");
+                $("#que").attr("disabled", "disabled");
+            } else {
+                $("#money-a").css("display", "none");
+                $('#que').removeAttr("disabled");
+            }
+        })
+        // 确认租出
+        $("#que").click(function () {
+            var This = $("input[name=radio]:checked").parents().children();
+            var id = $(This).eq(2).html();
+            $(This).eq(5).html("已租");
+            var zhuangtai = $(This).eq(5).html();
+            $.post("/yizu/" + id, { "zhuangtai": zhuangtai }, function (data) {
+                if (data.result == 1) {
+                    alert("出租成功");
+                } else if (data.result == -1) {
+                    alert("失败")
+                }
+            })
+            // 把租车存到数据库
+            $.post("/yizus", {
+                id: id,
+                yonghuming: $("#select").val(),
+                name: $(This).eq(3).html(),
+                time: $("input[name=shi]").val(),
+                price: $(This).eq(4).html(),
+                yajin: $("input[name=yajin]").val(),
+                he: $("input[name=price]").val(),
+                type: $(This).eq(6).html(),
+            }, function (data) {
+                if (data.result == 1) {
+                    alert("成功");
+                    window.location = "/gui"
+                    $("input[type=text]").val("");
+                } else if (data.result == -2) {
+                    alert("服务器错误")
+                } else if (data.result == -1) {
+                    alert("失败")
+                }
+            })
+        })
+        // 点击时获取数据
+        $("#tbody").delegate(".checkbox", "click", function () {
+            var $this = $(this).parent().parent().children();
+            var mei = $this.eq(3).html()
+            $("input[name=mei]").val(mei);
+            $("input[name=shi]").val("1");
+            var shi = $("input[name=shi]").val();
+            $("input[name=price]").val(mei * shi);
+            $("input[name=shi]").change(function () {
+                var shi = $("input[name=shi]").val();
+                $("input[name=price]").val(mei * shi);
+            })
+        })
+        $("#jia").click(function () {
+            window.location = "/find"
+        })
+        // 退出
+        $("#tui").click(function () {
+            $.get("/tui", function (data) {
+                alert("退出成功");
+                window.location = "/";
+            })
+        })
+    </script>
+</body>
+
+</html>
